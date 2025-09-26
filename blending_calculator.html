@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2,3-BDO 블렌딩 비율 계산기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        input:read-only {
+            background-color: #e5e7eb;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">2,3-BDO 블렌딩 비율 계산기</h1>
+        <p class="text-center text-gray-600 mb-8">
+            4개의 값을 입력하면, 남은 1개의 입력창이 자동으로 계산되어 채워지고 입력이 잠깁니다.
+        </p>
+        <div class="space-y-6">
+            <!-- Input Card for Feed A -->
+            <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-200">
+                <h2 class="text-xl font-semibold text-indigo-800 mb-4">Feed A 정보</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="mesoA" class="block text-sm font-medium text-gray-700">meso 비율 (%)</label>
+                        <input type="number" id="mesoA" oninput="calculate()" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="예: 80">
+                    </div>
+                    <div>
+                        <label for="massA" class="block text-sm font-medium text-gray-700">질량 (g)</label>
+                        <input type="number" id="massA" oninput="calculate()" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="예: 100">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Card for Feed B -->
+            <div class="bg-pink-50 p-6 rounded-xl border border-pink-200">
+                <h2 class="text-xl font-semibold text-pink-800 mb-4">Feed B 정보</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="mesoB" class="block text-sm font-medium text-gray-700">meso 비율 (%)</label>
+                        <input type="number" id="mesoB" oninput="calculate()" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 p-2" placeholder="예: 20">
+                    </div>
+                    <div>
+                        <label for="massB" class="block text-sm font-medium text-gray-700">질량 (g)</label>
+                        <input type="number" id="massB" oninput="calculate()" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 p-2" placeholder="예: 200">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Card for Product -->
+            <div class="bg-teal-50 p-6 rounded-xl border border-teal-200">
+                <h2 class="text-xl font-semibold text-teal-800 mb-4">Product 정보</h2>
+                <div>
+                    <label for="mesoProduct" class="block text-sm font-medium text-gray-700">meso 목표 비율 (%)</label>
+                    <input type="number" id="mesoProduct" oninput="calculate()" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 p-2" placeholder="예: 50">
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mt-8">
+                <button onclick="resetInputs()" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-full transition duration-300 ease-in-out transform hover:scale-105">
+                    초기화
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 입력 필드를 초기화하고 입력 가능 상태로 되돌리는 함수
+        function resetInputs() {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                input.value = '';
+                input.readOnly = false;
+                // Placeholder를 초기 상태로 되돌립니다.
+                if (input.id === 'mesoA') input.placeholder = '예: 80';
+                if (input.id === 'massA') input.placeholder = '예: 100';
+                if (input.id === 'mesoB') input.placeholder = '예: 20';
+                if (input.id === 'massB') input.placeholder = '예: 200';
+                if (input.id === 'mesoProduct') input.placeholder = '예: 50';
+            });
+        }
+
+        // 계산을 수행하는 메인 함수
+        function calculate() {
+            // 이전에 계산된 결과가 있으면 초기화
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                if (input.readOnly) {
+                    input.value = '';
+                    input.readOnly = false;
+                }
+            });
+
+            // 입력된 값들을 가져오기
+            const mesoA = parseFloat(document.getElementById('mesoA').value);
+            const massA = parseFloat(document.getElementById('massA').value);
+            const mesoB = parseFloat(document.getElementById('mesoB').value);
+            const massB = parseFloat(document.getElementById('massB').value);
+            const mesoProduct = parseFloat(document.getElementById('mesoProduct').value);
+
+            // 입력된 값의 개수 확인
+            const filledCount = [mesoA, massA, mesoB, massB, mesoProduct].filter(v => !isNaN(v)).length;
+            if (filledCount !== 4) {
+                return; // 4개의 값이 아니면 계산하지 않고 종료
+            }
+
+            // 비어있는 필드를 찾고 계산 수행
+            let calculatedValue = null;
+            let missingFieldId = null;
+
+            if (isNaN(mesoA)) {
+                missingFieldId = 'mesoA';
+                if (massA === 0) return; // 분모가 0이면 계산 불가
+                calculatedValue = ((mesoProduct * (massA + massB)) - (mesoB * massB)) / massA;
+            } else if (isNaN(massA)) {
+                missingFieldId = 'massA';
+                if (mesoA === mesoProduct) return;
+                calculatedValue = (massB * (mesoProduct - mesoB)) / (mesoA - mesoProduct);
+                if (calculatedValue < 0) return; // 질량은 음수가 될 수 없음
+            } else if (isNaN(mesoB)) {
+                missingFieldId = 'mesoB';
+                if (massB === 0) return; // 분모가 0이면 계산 불가
+                calculatedValue = ((mesoProduct * (massA + massB)) - (mesoA * massA)) / massB;
+            } else if (isNaN(massB)) {
+                missingFieldId = 'massB';
+                if (mesoB === mesoProduct) return;
+                calculatedValue = (massA * (mesoA - mesoProduct)) / (mesoProduct - mesoB);
+                if (calculatedValue < 0) return; // 질량은 음수가 될 수 없음
+            } else if (isNaN(mesoProduct)) {
+                missingFieldId = 'mesoProduct';
+                const totalMesoMass = (mesoA * massA) + (mesoB * massB);
+                const totalMass = massA + massB;
+                if (totalMass === 0) return;
+                calculatedValue = (totalMesoMass / totalMass);
+            }
+
+            // 계산된 값을 해당 입력란에 채우고, 입력 불가능 상태로 변경
+            if (calculatedValue !== null) {
+                const inputElement = document.getElementById(missingFieldId);
+                // meso 비율은 소수점으로, 질량은 그대로 표시
+                inputElement.value = calculatedValue.toFixed(2);
+                inputElement.readOnly = true;
+            }
+        }
+    </script>
+</body>
+</html>
